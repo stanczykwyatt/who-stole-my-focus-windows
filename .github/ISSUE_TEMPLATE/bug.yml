@@ -1,0 +1,30 @@
+name: Bug report
+description: A switch it judged wrong, or something else that isn't working.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you actually do (a click, a shortcut, nothing at all), and what did the log say?
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: The event's details
+      description: Right-click the row in the log, choose Copy Details, and paste here. Paths in your user folder are already shortened to ~.
+      render: text
+  - type: input
+    id: version
+    attributes:
+      label: Who Stole My Focus version
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      description: For example Windows 11 24H2, from Settings → System → About.
+    validations:
+      required: true

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Who Stole My Focus for Windows: find the app that keeps stealing focus</title>
+  <meta name="description" content="Who Stole My Focus is a free, open-source Windows tray app that logs every app that comes to the front on its own, with no click or keypress from you, and the keystrokes it stole. It names the culprit, what it took focus from and for how long. No admin rights, no internet access.">
+  <meta name="keywords" content="windows focus stealing, what is stealing focus windows 11, app keeps stealing focus, window loses focus randomly, game minimizes itself, find focus stealing process, focuslogger alternative">
+  <link rel="canonical" href="https://stanczykwyatt.github.io/who-stole-my-focus-windows/">
+  <link rel="icon" href="icon.png">
+  <link rel="stylesheet" href="site.css">
+  <meta name="theme-color" content="#0d0f12">
+  <meta name="color-scheme" content="dark">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Who Stole My Focus">
+  <meta property="og:title" content="Who Stole My Focus for Windows">
+  <meta property="og:description" content="Find out which app keeps jumping in front of your work. Free, open source, no admin rights, no internet access.">
+  <meta property="og:url" content="https://stanczykwyatt.github.io/who-stole-my-focus-windows/">
+  <meta property="og:image" content="https://stanczykwyatt.github.io/who-stole-my-focus-windows/social.png">
+  <meta property="og:image:width" content="1280">
+  <meta property="og:image:height" content="640">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Who Stole My Focus for Windows",
+    "description": "A Windows tray app that logs every app that comes to the front, judges whether you switched to it or it stole focus, and names the culprit.",
+    "operatingSystem": "Windows 10 and Windows 11",
+    "applicationCategory": "UtilitiesApplication",
+    "url": "https://stanczykwyatt.github.io/who-stole-my-focus-windows/",
+    "downloadUrl": "https://github.com/stanczykwyatt/who-stole-my-focus-windows/releases/latest/download/WhoStoleMyFocus-win-x64.zip",
+    "softwareVersion": "0.1.0",
+    "datePublished": "2026-11-28",
+    "featureList": [
+      "Logs every app that comes to the front, with the app it took focus from and how long it stayed",
+      "Catches apps that jump in while you're typing",
+      "Recognizes clicks, Alt+Tab, shortcuts, Start, Search, launchers and apps you opened as your own switches",
+      "Names parts of Windows like CredentialUIBroker in plain words",
+      "Top offenders, the full log, Copy as CSV and optional notifications",
+      "No admin rights, no internet access, and it never reads which keys you press"
+    ],
+    "image": "https://stanczykwyatt.github.io/who-stole-my-focus-windows/icon.png",
+    "license": "https://opensource.org/licenses/MIT",
+    "isAccessibleForFree": true,
+    "author": { "@type": "Person", "name": "Wyatt Stanczyk", "url": "https://wyattstanczyk.com" },
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "How do I find out what's stealing focus on Windows?", "acceptedAnswer": { "@type": "Answer", "text": "Run Who Stole My Focus and wait for it to happen again. Click its tray icon: the latest steal is at the top, with the app's name, what it took focus from and when." } },
+      { "@type": "Question", "name": "My game keeps minimizing. Will this find out why?", "acceptedAnswer": { "@type": "Answer", "text": "Usually. When something takes focus from a full-screen game, it's logged with the game as what it took focus from. Apps running as administrator show as an app Windows won't name." } },
+      { "@type": "Question", "name": "Does it read what I type?", "acceptedAnswer": { "@type": "Answer", "text": "No. It notes only when you last clicked or pressed a key, and for keys only whether it was a modifier like Alt. It never knows which key, never sees text and has no internet access." } },
+      { "@type": "Question", "name": "Is it a FocusLogger alternative?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Both log which process takes focus. Who Stole My Focus also judges each switch against what you did just before, so your own switches aren't listed as thefts." } },
+      { "@type": "Question", "name": "Does it need admin rights?", "acceptedAnswer": { "@type": "Answer", "text": "No. It runs as you, installs nothing and is a single file." } }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <div class="scene" aria-hidden="true"></div>
+  <main class="glass">
+    <div class="edge" aria-hidden="true"></div>
+    <div class="content">
+      <nav class="bar" aria-label="Site">
+        <a class="label" href="https://github.com/stanczykwyatt/who-stole-my-focus-windows/releases/tag/v0.1.0">who stole my focus · windows · v0.1</a>
+        <a class="label" href="https://github.com/stanczykwyatt/who-stole-my-focus-windows">github ↗</a>
+      </nav>
+      <section class="center">
+        <div class="title">
+          <img class="icon" src="icon.png" alt="" width="76" height="76">
+          <h1>Who Stole My Focus</h1>
+        </div>
+        <p class="lede">You're typing, and your words land in some other window. Who Stole My Focus sits in the tray, logs every app that comes to the front on its own, and names the culprit. Now on Windows, with the same rules as the Mac app.</p>
+        <img class="shot" src="demo.gif" width="720" height="450" alt="Drawn demo: while you're typing in an editor, a window called SyncHelper jumps in front. A notification says SyncHelper (CloudSync) stole focus from Editor, and the log shows why: while you were typing.">
+        <div class="actions" style="margin-top: 22px">
+          <a class="button solid" href="https://github.com/stanczykwyatt/who-stole-my-focus-windows/releases/latest/download/WhoStoleMyFocus-win-x64.zip">Download for Windows</a>
+          <a class="button" href="https://github.com/stanczykwyatt/who-stole-my-focus-windows">
+            <svg class="star" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.4l1.95 4.02 4.43.6-3.23 3.08.79 4.4L8 11.38 4.06 13.5l.79-4.4L1.62 6.02l4.43-.6z"/></svg>
+            Star on GitHub
+          </a>
+        </div>
+        <p class="label">free · open source · windows 10 and 11 · x64 and arm64 · no admin · no internet access</p>
+      </section>
+      <section class="section" aria-labelledby="what-title">
+        <h2 id="what-title">What you get</h2>
+        <ul class="verdicts">
+          <li class="key"><b>The culprit, by name,</b> with what it took focus from, when, and how long it stayed.</li>
+          <li class="key"><b>Steals while you type,</b> caught with a second look 0.4 seconds after each switch.</li>
+          <li><b>Your own switches left out:</b> clicks, Alt+Tab, shortcuts, Start, Search, launchers and apps you just opened.</li>
+          <li><b>Parts of Windows explained,</b> like CredentialUIBroker asking for your PIN.</li>
+          <li><b>Top offenders,</b> the full log, Copy as CSV and optional notifications.</li>
+        </ul>
+      </section>
+      <section class="section" aria-labelledby="private-title">
+        <h2 id="private-title">What it never does</h2>
+        <ul class="verdicts">
+          <li class="key"><b>Know which key you pressed.</b> It notes only when you clicked or typed, and whether a key was a modifier.</li>
+          <li><b>Read your windows.</b> Only the name of the app in front, never a title or what's in it.</li>
+          <li><b>Go online, or ask for admin.</b> No networking code, no service, no driver. CI checks every build.</li>
+        </ul>
+      </section>
+      <section class="section" aria-labelledby="faq-title">
+        <h2 id="faq-title">Questions</h2>
+        <details><summary>How do I find out what's stealing focus on Windows?</summary><p>Run Who Stole My Focus and wait for it to happen again. Click its tray icon: the latest steal is at the top, with the app's name, what it took focus from and when.</p></details>
+        <details><summary>My game keeps minimizing. Will this find out why?</summary><p>Usually. When something takes focus from a full-screen game, it's logged with the game as what it took focus from. Apps running as administrator show as an app Windows won't name.</p></details>
+        <details><summary>Does it read what I type?</summary><p>No. It notes only when you last clicked or pressed a key, and for keys only whether it was a modifier like Alt. <a href="https://github.com/stanczykwyatt/who-stole-my-focus-windows/blob/main/SECURITY.md">SECURITY.md</a> lists exactly what it reads.</p></details>
+        <details><summary>Is it a FocusLogger alternative?</summary><p>Yes. Both log which process takes focus. This one also judges each switch against what you did just before, so your own switches aren't listed as thefts.</p></details>
+        <details><summary>Windows says it protected my PC. Is it safe?</summary><p>The app isn't signed with a paid certificate, so SmartScreen warns the first time. The code is open source and each download is built by CI from it. Click <b>More info</b>, then <b>Run anyway</b>.</p></details>
+      </section>
+      <footer class="foot">
+        <p>Also free: <a href="https://stanczykwyatt.github.io/who-stole-my-focus/">Who Stole My Focus for Mac</a>, <a href="https://stanczykwyatt.github.io/show-desktop/">Show Desktop</a>, <a href="https://stanczykwyatt.github.io/copy-2fa/">Copy 2FA</a>, <a href="https://stanczykwyatt.github.io/ai-footprint/">AI Footprint</a>, <a href="https://stanczykwyatt.github.io/memo-export/">Memo Export</a>, <a href="https://stanczykwyatt.github.io/podcast-export/">Podcast Export</a>, <a href="https://stanczykwyatt.github.io/reading-list-export/">Reading List Export</a>, <a href="https://stanczykwyatt.github.io/unblock-eject/">Unblock Eject</a>, <a href="https://stanczykwyatt.github.io/next-departures/">Next Departures</a>, <a href="https://stanczykwyatt.github.io/right-folder/">Right Folder</a>, <a href="https://stanczykwyatt.github.io/mulligan/">mulligan</a> and <a href="https://stanczykwyatt.github.io/tonecap/">Tonecap</a>.</p>
+        <p>Who Stole My Focus collects no data, and this site has no cookies or tracking. MIT License. Not affiliated with Microsoft; Windows is a trademark of Microsoft Corporation. FocusLogger is named only to say what this is an alternative to. The apps in the demo are made up.</p>
+      </footer>
+    </div>
+  </main>
+</body>
+</html>

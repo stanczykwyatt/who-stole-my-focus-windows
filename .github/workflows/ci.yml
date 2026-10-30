@@ -1,0 +1,162 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      DOTNET_NOLOGO: "true"
+      DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+      # Uses the .NET that comes with the runner. If it's newer than .NET 8, the tests still run on it.
+      DOTNET_ROLL_FORWARD: Major
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Show the .NET SDK
+        run: dotnet --version
+
+      - name: Run tests
+        run: dotnet test --configuration Release
+
+      - name: Check the app has no networking code
+        shell: bash
+        run: |
+          pattern='System\.Net|HttpClient|WebClient|WebRequest|Socket|Windows\.Networking|Windows\.Web\.|WinHttp|wininet|ws2_32|urlmon|Process\.Start|ShellExecute|CreateProcess'
+          # Only source files: bin and obj hold build output. The one allowed match is the line in
+          # Directory.Build.targets that removes the SDK's default HTTP import.
+          matches="$(grep -rnE --include='*.cs' --include='*.csproj' --include='*.props' --include='*.targets' --exclude-dir=bin --exclude-dir=obj "$pattern" . \
+            | grep -v 'Using Remove="System.Net.Http"' || true)"
+          if [ -n "$matches" ]; then
+            echo "$matches"
+            echo "::error::Who Stole My Focus must never contain networking code or start other programs."
+            exit 1
+          fi
+          # DLL names are matched in any case, since Windows doesn't care.
+          if grep -rniE --include='*.cs' --exclude-dir=bin --exclude-dir=obj 'winhttp|wininet|ws2_32|wsock32|urlmon|iphlpapi|dnsapi|mswsock' . \
+            || grep -rnE --include='*.cs' --exclude-dir=bin --exclude-dir=obj 'ProcessStartInfo|new Process\(|Process\.Start' .; then
+            echo "::error::Who Stole My Focus must never load a networking library or start other programs."
+            exit 1
+          fi
+          echo "No networking code and no child processes."
+
+      - name: Check it never reads keys, text or the screen, or reaches into other apps
+        shell: bash
+        run: |
+          # No keyboard or mouse hooks, nothing that turns keys into text, no window text, no screen
+          # capture, no clipboard reading, no sending input, and no access to other processes' memory.
+          pattern='EntryPoint *=|NativeLibrary|GetProcAddress|LoadLibrary|GetDelegateForFunctionPointer|delegate\* *unmanaged|\bunsafe\b|AccessibleObjectFromWindow|GetDC\(|GetWindowDC|StretchBlt|GetDIBits|BringWindowToTop|SwitchToThisWindow|NtReadVirtualMemory|OpenThread|DuplicateHandle|GetRawInputBuffer|BitConverter|InputInjector|Windows\.System\.Launcher|LaunchUriAsync|SetWindowsHookEx|WH_KEYBOARD|WH_MOUSE|keybd_event|mouse_event|SendInput|PostMessage|SendMessage|ToUnicode|ToAscii|MapVirtualKey|GetKeyboardState|GetKeyNameText|GetWindowText|InternalGetWindowText|WM_GETTEXT|PrintWindow|BitBlt|CopyFromScreen|GetClipboardData|Clipboard\.Get|ReadProcessMemory|WriteProcessMemory|VirtualAllocEx|CreateRemoteThread|OpenProcessToken|PROCESS_VM_READ|PROCESS_ALL_ACCESS|SetForegroundWindow|AttachThreadInput|UIAutomation|IUIAutomation|AutomationElement'
+          if grep -rnE --include='*.cs' --exclude-dir=bin --exclude-dir=obj "$pattern" .; then
+            echo "::error::Who Stole My Focus must never read keys, text or the screen, send input, or reach into other apps."
+            exit 1
+          fi
+          check() {
+            local pattern="$1" file="$2" what="$3"
+            found="$(grep -rnE --include='*.cs' --exclude-dir=bin --exclude-dir=obj --exclude-dir=WhoStoleMyFocus.Core.Tests "$pattern" . | grep -vE "^(\./)?WhoStoleMyFocus/($file|Native\.cs):" || true)"
+            if [ -n "$found" ]; then
+              echo "$found"
+              echo "::error::Only $file may $what."
+              exit 1
+            fi
+          }
+          check 'RegisterRawInputDevices|GetRawInputData|WM_INPUT' InputClock.cs 'listen to raw input'
+          check 'SetWinEventHook' FocusMonitor.cs 'watch the foreground window'
+          check 'OpenProcess|QueryFullProcessImageName|GetProcessTimes|FileVersionInfo' FocusMonitor.cs 'look at other processes'
+          check 'GetClassName|VirtualDesktopManager|GetProcessById' FocusMonitor.cs 'look at windows and processes'
+          check 'GetAsyncKeyState|PeekMessage|GetMessageTime' InputClock.cs 'ask about keys or input messages'
+          check 'System\.Reflection|GetMethod\(' TrayApp.cs 'use reflection'
+          check 'Clipboard\.Set' LogWindow.cs 'copy to the clipboard'
+          check '(^|[^A-Za-z])(File|Directory|FileStream|StreamWriter|StreamReader)\.' LogStore.cs 'read or write files'
+          # The raw input it reads: the event type, and for keys the flags and virtual key, for mice the button flags.
+          # Everything InputClock reads: the event's type and device, the key's flags and virtual key, the
+          # mouse's button flags, and a touch device's type, usage page and usage.
+          reads="$(grep -oE 'ReadUInt(16|32)LittleEndian\([^)]*\)|Marshal\.Read[A-Za-z0-9]+\([^)]*\)|\b(bytes|data|buffer|info)\[' WhoStoleMyFocus/InputClock.cs | sort -u | tr '\n' ' ')"
+          expected="Marshal.ReadInt16(info, 20) Marshal.ReadInt16(info, 22) Marshal.ReadInt32(info, 4) Marshal.ReadIntPtr(buffer, 8) ReadUInt16LittleEndian(data[2..]) ReadUInt16LittleEndian(data[4..]) ReadUInt16LittleEndian(data[6..]) ReadUInt32LittleEndian(bytes) "
+          if [ "$reads" != "$expected" ]; then
+            echo "Reads: $reads"
+            echo "::error::InputClock may only read the event type and device, the key's flags and virtual key, the mouse's button flags, and a touch device's kind."
+            exit 1
+          fi
+          # Of the keyboard's state, only whether Ctrl, Alt or a Windows key is held.
+          if [ "$(grep -c 'GetAsyncKeyState(' WhoStoleMyFocus/InputClock.cs)" -ne 1 ] || ! grep -q 'new\[\] { VK_CONTROL, VK_MENU, VK_LWIN, VK_RWIN }.Any(key => (GetAsyncKeyState(key)' WhoStoleMyFocus/InputClock.cs; then
+            echo "::error::GetAsyncKeyState may only ask about Ctrl, Alt and the Windows keys."
+            exit 1
+          fi
+          # The access rights have to be what their names say.
+          if ! grep -q 'PROCESS_QUERY_LIMITED_INFORMATION = 0x1000;' WhoStoleMyFocus/Native.cs || ! grep -q 'SYNCHRONIZE = 0x00100000;' WhoStoleMyFocus/Native.cs \
+            || [ "$(grep -cE '\b(PROCESS_|SYNCHRONIZE)[A-Z_]* *=' WhoStoleMyFocus/Native.cs)" -ne 2 ]; then
+            echo "::error::Native.cs may define only PROCESS_QUERY_LIMITED_INFORMATION (0x1000) and SYNCHRONIZE (0x00100000) as access rights."
+            exit 1
+          fi
+          # Other processes are only opened to read their name and start time, or to wait for them to quit.
+          if grep -nE 'OpenProcess\(' WhoStoleMyFocus/FocusMonitor.cs | grep -vE 'OpenProcess\((PROCESS_QUERY_LIMITED_INFORMATION|SYNCHRONIZE), false,'; then
+            echo "::error::Processes may only be opened with PROCESS_QUERY_LIMITED_INFORMATION or SYNCHRONIZE."
+            exit 1
+          fi
+          if ! grep -q 'level="asInvoker" uiAccess="false"' WhoStoleMyFocus/app.manifest; then
+            echo "::error::The app must run as the user, never as administrator or with UI access."
+            exit 1
+          fi
+          echo "Raw input times only, process names only, each powerful call in its one file."
+
+      - name: Check there are no packages in the app
+        shell: bash
+        run: |
+          if grep -nE 'PackageReference|FrameworkReference|PackageVersion' WhoStoleMyFocus/*.csproj WhoStoleMyFocus.Core/*.csproj Directory.Build.* ; then
+            echo "::error::The app has no package or framework dependencies beyond Windows Forms. Only the tests use xUnit."
+            exit 1
+          fi
+          if ! grep -q '<TargetFramework>net8.0-windows</TargetFramework>' WhoStoleMyFocus/WhoStoleMyFocus.csproj; then
+            echo "::error::The app targets plain Windows, without the Windows Runtime."
+            exit 1
+          fi
+          echo "No dependencies in the app."
+
+      - name: Publish for x64
+        run: dotnet publish WhoStoleMyFocus --configuration Release --runtime win-x64 --self-contained -p:PublishSingleFile=true --output publish/win-x64
+
+      - name: Publish for Arm64
+        run: dotnet publish WhoStoleMyFocus --configuration Release --runtime win-arm64 --self-contained -p:PublishSingleFile=true --output publish/win-arm64
+
+      # The .NET runtime is built into the exe, so its license notices ship with it.
+      - name: Add license notices
+        shell: bash
+        run: |
+          cp -R licenses publish/win-x64/licenses
+          cp -R licenses publish/win-arm64/licenses
+
+      - name: Upload the x64 build
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: WhoStoleMyFocus-win-x64
+          path: |
+            publish/win-x64/WhoStoleMyFocus.exe
+            publish/win-x64/licenses/
+          if-no-files-found: error
+
+      - name: Upload the Arm64 build
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: WhoStoleMyFocus-win-arm64
+          path: |
+            publish/win-arm64/WhoStoleMyFocus.exe
+            publish/win-arm64/licenses/
+          if-no-files-found: error
+
+  core-on-linux:
+    # The judging rules are plain .NET, so they're tested on Linux too, the way they're developed on a Mac.
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_NOLOGO: "true"
+      DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+      DOTNET_ROLL_FORWARD: Major
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Run the Core tests
+        run: dotnet test WhoStoleMyFocus.Core.Tests --configuration Release

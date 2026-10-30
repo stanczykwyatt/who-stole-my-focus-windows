@@ -1,0 +1,57 @@
+name: Release
+
+# When a release is published, builds both downloads from the release's tag on a clean runner, runs
+# the tests first, and attaches each zip with its SHA-256, which the winget manifest needs.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    # Builds without any write access; only the upload job below can change the release.
+    runs-on: windows-latest
+    env:
+      DOTNET_NOLOGO: "true"
+      DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+      DOTNET_ROLL_FORWARD: Major
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          persist-credentials: false
+      - name: Test
+        run: dotnet test --configuration Release
+      - name: Build
+        shell: bash
+        run: |
+          for arch in x64 arm64; do
+            dotnet publish WhoStoleMyFocus --configuration Release --runtime "win-$arch" --self-contained -p:PublishSingleFile=true --output "publish/win-$arch"
+            cp -R licenses "publish/win-$arch/licenses"
+            (cd "publish/win-$arch" && 7z a -tzip "../../WhoStoleMyFocus-win-$arch.zip" WhoStoleMyFocus.exe licenses > /dev/null)
+            sha256sum "WhoStoleMyFocus-win-$arch.zip" > "WhoStoleMyFocus-win-$arch.zip.sha256"
+          done
+          cat ./*.sha256
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release
+          path: WhoStoleMyFocus-win-*.zip*
+          if-no-files-found: error
+
+  upload:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        with:
+          name: release
+      - name: Attach to the release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$TAG" WhoStoleMyFocus-win-*.zip WhoStoleMyFocus-win-*.zip.sha256 --clobber --repo "$GITHUB_REPOSITORY"
