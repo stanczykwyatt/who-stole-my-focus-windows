@@ -6,6 +6,7 @@
 
 <p align="center">
   <b>Find out which app keeps jumping in front of your work.</b><br>
+  <i>Preview release.</i>
   A free, open-source tray app that logs every app that comes to the front on its own, and the keystrokes it stole, with no click or keypress from you before it. The Windows version of <a href="https://github.com/stanczykwyatt/who-stole-my-focus">Who Stole My Focus</a>, with the same rules.
 </p>
 
@@ -75,6 +76,8 @@ The rules are the same as the Mac app's, ported line by line and checked by the 
 - **It errs toward not blaming apps.** When it can't tell, it says so instead of calling it a steal. The lock screen and sign-in screen are ignored by default, and you can ignore any other app from the log.
 
 ## Install
+
+> **Preview:** this hasn't been run on a real Windows PC yet. Its rules are a port of the Mac app's, and their 208 tests pass on Windows, Linux and macOS in CI, but the Windows parts (the tray, focus events and input times) have only been compiled. If you try it, please say how it went in [Discussions](https://github.com/stanczykwyatt/who-stole-my-focus-windows/discussions) or [open an issue](https://github.com/stanczykwyatt/who-stole-my-focus-windows/issues).
 
 1. [Download **WhoStoleMyFocus-win-x64.zip**](https://github.com/stanczykwyatt/who-stole-my-focus-windows/releases/latest/download/WhoStoleMyFocus-win-x64.zip) (or [the Arm64 version](https://github.com/stanczykwyatt/who-stole-my-focus-windows/releases/latest/download/WhoStoleMyFocus-win-arm64.zip) for Snapdragon PCs) and unzip it.
 2. Move **WhoStoleMyFocus.exe** somewhere it can stay, like a folder in your user folder, and open it. It's one file with everything it needs, so there's nothing to install.
