@@ -17,6 +17,7 @@
   <meta property="og:description" content="Find out which app keeps jumping in front of your work. Free, open source, no admin rights, no internet access.">
   <meta property="og:url" content="https://stanczykwyatt.github.io/who-stole-my-focus-windows/">
   <meta property="og:image" content="https://stanczykwyatt.github.io/who-stole-my-focus-windows/social.png">
+  <meta property="og:image:alt" content="Who Stole My Focus for Windows">
   <meta property="og:image:width" content="1280">
   <meta property="og:image:height" content="640">
   <meta name="twitter:card" content="summary_large_image">
@@ -48,18 +49,53 @@
   }
   </script>
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      { "@type": "Question", "name": "How do I find out what's stealing focus on Windows?", "acceptedAnswer": { "@type": "Answer", "text": "Run Who Stole My Focus and wait for it to happen again. Click its tray icon: the latest steal is at the top, with the app's name, what it took focus from and when." } },
-      { "@type": "Question", "name": "My game keeps minimizing. Will this find out why?", "acceptedAnswer": { "@type": "Answer", "text": "Usually. When something takes focus from a full-screen game, it's logged with the game as what it took focus from. Apps running as administrator show as an app Windows won't name." } },
-      { "@type": "Question", "name": "Does it read what I type?", "acceptedAnswer": { "@type": "Answer", "text": "No. It notes only when you last clicked or pressed a key, and for keys only whether it was a modifier like Alt. It never knows which key, never sees text and has no internet access." } },
-      { "@type": "Question", "name": "Is it a FocusLogger alternative?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Both log which process takes focus. Who Stole My Focus also judges each switch against what you did just before, so your own switches aren't listed as thefts." } },
-      { "@type": "Question", "name": "Does it need admin rights?", "acceptedAnswer": { "@type": "Answer", "text": "No. It runs as you, installs nothing and is a single file." } }
-    ]
-  }
-  </script>
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I find out what's stealing focus on Windows?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Run Who Stole My Focus and wait for it to happen again. Click its tray icon: the latest steal is at the top, with the app's name, what it took focus from and when."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "My game keeps minimizing. Will this find out why?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Usually. When something takes focus from a full-screen game, it's logged with the game as what it took focus from. Apps running as administrator show as an app Windows won't name."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does it read what I type?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. It notes only when you last clicked or pressed a key, and for keys only whether it was a modifier like Alt. SECURITY.md lists exactly what it reads."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is it a FocusLogger alternative?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Both log which process takes focus. This one also judges each switch against what you did just before, so your own switches aren't listed as thefts."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Windows says it protected my PC. Is it safe?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The app isn't signed with a paid certificate, so SmartScreen warns the first time. The code is open source and each download is built by CI from it. Click More info, then Run anyway."
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
   <div class="scene" aria-hidden="true"></div>
